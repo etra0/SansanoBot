@@ -66,7 +66,11 @@ while True:
     actual_id = last_user["update_id"]
     mensaje = last_user["message"]['text']
     if actual_id != last:
-        print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], mensaje))
+        print(last_user)
+        try:
+            print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], mensaje))
+        except:
+            print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['first_name'], mensaje))
         last = actual_id
         last_id = last_user['message']['from']['id']
         if "minuta" in mensaje:
@@ -74,8 +78,8 @@ while True:
         elif "/start" in mensaje or "/help" in mensaje:
             mensaje = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
-    <i>minuta:</i> te otorga la minuta del día.
-    <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
+    - <i>minuta:</i> te otorga la minuta del día.
+    - <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
 
 <b>Por integrar</b>: minuta vegana, y dieta."""
             sendMessage(mensaje, last_id)
