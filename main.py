@@ -66,7 +66,6 @@ while True:
     actual_id = last_user["update_id"]
     mensaje = last_user["message"]['text']
     if actual_id != last:
-        print(last_user)
         try:
             print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], mensaje))
         except:
