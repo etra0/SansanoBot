@@ -81,7 +81,8 @@ Actualmente, el bot USM-Bot tiene los siguientes comandos:
     - <i>minuta:</i> te otorga la minuta del día.
     - <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
 
-<b>Por integrar</b>: minuta vegana, y dieta."""
+<b>Por integrar</b>: minuta vegana, y dieta.
+""" + ("\nCreado por @EtraStyle" if "/start" in mensaje else "")
             sendMessage(mensaje, last_id)
         else:
             sendMessage("Lo siento, no entiendo lo que quieres decir\n", last_id)
