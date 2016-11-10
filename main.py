@@ -4,6 +4,16 @@ from urllib.parse import quote
 import urllib, json
 import requests
 import time
+import re
+
+minuta_regex = r"([/]?minuta) ?(vegetariano|dieta|normal|\w+)? ?(hoy)?"
+minuta_regex = re.compile(minuta_regex)
+minuta_regex_matches = {
+    None: 0,
+    "normal": 0,
+    "dieta": 1,
+    "vegetariano": 2
+}
 
 def getMe():
     url = "https://api.telegram.org/bot282934143:AAFdnIgRuK50WJQO0sZxdqpaxrOxuNrZrTs/getMe"
@@ -27,7 +37,7 @@ def sendMessage(text, user):
     except:
         pass
 
-def minuta():
+def minuta(determinante, nombre, hoy):
     try:
         minuta = requests.get('http://www.usm.cl/comunidad/servicio-de-alimentacion/')
     except:
@@ -53,9 +63,16 @@ def minuta():
     for i in range(len(info)):
         info[i] = info[i].replace("<td>","").replace("<strong>", "").replace("</strong>", "").replace("<tr>", "")
 
-    text = ""
-    for i in range(0, 5):
-        text += "<b>%s</b>:\n" % info[i].strip() + info[i+5].strip() + "\n\n"
+    if nombre == None:
+        nombre = "normal"
+    text = "<b>Minuta %s\n\n</b>" % nombre.title()
+    weekday = int(time.strftime("%w"))
+    if not hoy or weekday > 5:
+        for i in range(0, 5):
+            text += "<b>%s</b>:\n" % info[i].strip() + info[i + 5*(determinante + 1) + determinante].strip() + "\n\n"
+    else:
+        text += "<b>Hoy %s</b>:\n" % info[weekday - 1].strip() + info[weekday - 1 + 5*(determinante + 1) + determinante].strip() + "\n"
+
 
     return text
 
@@ -70,18 +87,27 @@ while True:
             print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], mensaje))
         except:
             print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['first_name'], mensaje))
+
         last = actual_id
         last_id = last_user['message']['from']['id']
-        if "minuta" in mensaje:
-            sendMessage(minuta(), last_id)
+
+        minuta_match = re.match(minuta_regex, mensaje)
+        minuta_match = minuta_match.groups() if minuta_match != None else False
+        if minuta_match:
+            sendMessage(minuta(minuta_regex_matches[minuta_match[1]], minuta_match[1], True if minuta_match[2] != None else False) if minuta_match[1] in minuta_regex_matches else "No existe ese menú", last_id)
+
         elif "/start" in mensaje or "/help" in mensaje:
             mensaje = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
-    - <i>minuta:</i> te otorga la minuta del día.
+    - <i>minuta:</i> te otorga la minuta del día, ya sea normal, vegetariano ó dieta. Además, puedes solicitar solo la del día.
+    <i>Ejemplo</i>
+        <b>/minuta vegetariano hoy</b>
     - <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
 
-<b>Por integrar</b>: minuta vegana, y dieta.
 """ + ("\nCreado por @EtraStyle" if "/start" in mensaje else "")
             sendMessage(mensaje, last_id)
+
+        elif "/clima" in mensaje:
+            sendMessage("Actualmente, se encuentra en desarrollo.", last_id)
         else:
             sendMessage("Lo siento, no entiendo lo que quieres decir\n", last_id)
