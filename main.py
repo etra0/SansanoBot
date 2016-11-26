@@ -5,6 +5,7 @@ import urllib, json
 import requests
 import time
 import re
+from secret_token import token
 
 minuta_regex = r"([/]?[mM]inuta) ?(vegetariano|dieta|normal|\w+)? ?(hoy)?"
 minuta_regex = re.compile(minuta_regex)
@@ -16,19 +17,19 @@ minuta_regex_matches = {
 }
 
 def getMe():
-    url = "https://api.telegram.org/bot282934143:AAFdnIgRuK50WJQO0sZxdqpaxrOxuNrZrTs/getMe"
+    url = "https://api.telegram.org/%s/getMe" % token
     response = urllib.request.urlopen(url)
     data = json.loads(response.read().decode('utf-8'))
     return data
 
 def getUpdates():
-    url = "https://api.telegram.org/bot282934143:AAFdnIgRuK50WJQO0sZxdqpaxrOxuNrZrTs/getUpdates"
+    url = "https://api.telegram.org/%s/getUpdates" % token
     response = urllib.request.urlopen(url)
     data = json.loads(response.read().decode('utf-8'))
     return data
 
 def sendMessage(text, user):
-    url = "https://api.telegram.org/bot282934143:AAFdnIgRuK50WJQO0sZxdqpaxrOxuNrZrTs/sendMessage?chat_id=" + str(user) + "&parse_mode=HTML&text="
+    url = "https://api.telegram.org/%s/sendMessage?chat_id=" % token + str(user) + "&parse_mode=HTML&text="
     url += quote(text)
     response = urllib.request.urlopen(url)
     try:
