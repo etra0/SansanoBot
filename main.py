@@ -1,36 +1,56 @@
 import re
-import requests
 from functions import *
 from telegram_api import *
-from secret_token import token
-last = 0
-while True:
-    if get_updates():
-        last_user = get_updates()["result"][-1]
-    else:
-        continue
-    actual_id = last_user["update_id"]
-    mensaje = last_user["message"]['text']
-    if actual_id != last:
-        try:
-            print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], mensaje))
-        except:
-            print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['first_name'], mensaje))
 
-        last = actual_id
-        last_id = last_user['message']['from']['id']
+WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
+Actualmente, el bot USM-Bot tiene los siguientes comandos:
+- <i>minuta:</i> te otorga la minuta del día, ya sea normal, vegetariano ó dieta. Además, puedes solicitar solo la del día.
+<i>Ejemplo</i>
+<b>/minuta vegetariano hoy</b>
+- <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
 
-        minuta_match = re.match(minuta_regex, mensaje)
-        minuta_match = minuta_match.groups() if minuta_match != None else False
-        if minuta_match:
-            print(minuta_match)
-            send_message(minuta(minuta_regex_matches[minuta_match[1]], minuta_match[1], True if minuta_match[2] != None else False) if minuta_match[1] in minuta_regex_matches else "No existe ese menú", last_id)
+"""
+commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<today>hoy))?",
+            r"[/](start|help)",
+            r"[/](clima)"
+            ]
 
-        elif "/start" in mensaje or "/help" in mensaje:
-            WELCOME_MESSAGE + ("\nCreado por @EtraStyle" if "/start" in mensaje else "")
-            send_message(mensaje, last_id)
+commands = init_regex(commands)
 
-        elif "/clima" in mensaje:
-            send_message("Actualmente, se encuentra en desarrollo.", last_id)
+if __name__ == "__main__":
+    last_message_id = 0
+    while True:
+        if get_updates():
+            last_user = get_updates()["result"][-1]
         else:
-            send_message("Lo siento, no entiendo lo que quieres decir\n", last_id)
+            continue
+        actual_message_id = last_user["update_id"]
+        message = last_user["message"]['text']
+        if actual_message_id != last_message_id:
+            if last_user['message']['from']['username']:
+                print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], message))
+            else:
+                print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['first_name'], message))
+
+            last_message_id = actual_message_id
+            last_user_id = last_user['message']['from']['id']
+
+            for command in commands:
+                command_match = command.match(message)
+                if command_match:
+                    command_name = command_match.group(1)
+                    command_dict = command_match.groupdict()
+                    break
+
+            if not command_match:
+                send_message("No entiendo lo que quieres decir.", last_user_id)
+                continue
+
+            if command_name.lower() == "minuta":
+                new_message = minuta(**command_dict)
+                send_message(new_message, last_user_id)
+            elif command_name in "starthelp":
+                new_message = WELCOME_MESSAGE + ("\nCreado por @EtraStyle" if "/start" in message else "")
+                send_message(new_message, last_user_id)
+            elif command_name == "clima":
+                send_message("Actualmente, se encuentra en desarrollo.", last_user_id)
