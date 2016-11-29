@@ -2,7 +2,6 @@ import re
 import time
 import requests
 
-
 def init_regex(regex_list):
     regex_list = list(map(lambda regex: re.compile(regex), regex_list))
     return regex_list

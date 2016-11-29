@@ -1,6 +1,7 @@
 import re
 from functions import *
 from telegram_api import *
+from secret_token import owner_id
 
 WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
@@ -17,7 +18,7 @@ commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (
 
 commands = init_regex(commands)
 
-if __name__ == "__main__":
+def main():
     last_message_id = 0
     while True:
         if get_updates():
@@ -54,3 +55,10 @@ if __name__ == "__main__":
                 send_message(new_message, last_user_id)
             elif command_name == "clima":
                 send_message("Actualmente, se encuentra en desarrollo.", last_user_id)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as err:
+        send_message("Se ha cerrado SansanoBot, motivo:\n%s" % err, owner_id)
+        sys.exit()
