@@ -7,29 +7,26 @@ def init_regex(regex_list):
     return regex_list
 
 def minuta(type_lunch, today):
-    minuta_regex_matches = {
+    type_lunch_number = {
         None: 0,
         "normal": 0,
         "dieta": 1,
         "vegetariano": 2
     }
-    determinante = minuta_regex_matches[type_lunch]
+    factor = type_lunch_number[type_lunch]
 
-    regex = re.compile(r"<table>(.*?)</table>", re.DOTALL)
+
     try:
         minuta = requests.get('http://www.usm.cl/comunidad/servicio-de-alimentacion/')
-    except:
-        send_message("Time out")
-        if minuta.status_code != 200:
-            send_message("No se pudo conectar!")
-    minuta_text = minuta.text.strip()
-    minuta_text = regex.search(minuta_text).groups()[0].strip().split("\n")
+    except requests.exceptions.ConnectTimeout as err:
+        return "No se ha podido conectar con usm.cl"
 
-    # Luego es necesario remover todos los elementos vacios, y ademas aplicar strip a cada string.
-    while '' in minuta_text:
-        minuta_text.remove('')
-    minuta_text = list(map(lambda string: string.strip(), minuta_text))
-    minuta_text = "\n".join(minuta_text)
+    if minuta.status_code != 200:
+        send_message("No se pudo conectar!")
+
+    regex = re.compile(r"<table>(.*?)</table>", re.DOTALL)
+    minuta_text = minuta.text.strip()
+    minuta_text = regex.search(minuta_text).group(1)
 
     regex = re.compile(r"<td>(.+?)</td>", re.DOTALL)
     minuta_text = regex.findall(minuta_text)
@@ -49,8 +46,8 @@ def minuta(type_lunch, today):
     weekday = int(time.strftime("%w"))
     if not today or weekday > 5:
         for i in range(0, 5):
-            text += "<b>%s</b>:\n" % minuta_text[i].strip() + minuta_text[i + 5 * (determinante + 1) + determinante].strip() + "\n\n"
+            text += "<b>%s</b>:\n" % minuta_text[i].strip() + minuta_text[i + 5 * (factor + 1) + factor].strip() + "\n\n"
     else:
-        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip() + minuta_text[weekday - 1 + 5*(determinante + 1) + determinante].strip() + "\n"
+        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip() + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip() + "\n"
 
     return text
