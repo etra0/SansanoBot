@@ -6,14 +6,17 @@ from secret_token import owner_id
 WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
 - <i>minuta:</i> te otorga la minuta del día, ya sea normal, vegetariano ó dieta. Además, puedes solicitar solo la del día.
+    <i>minuta [vegetariano|normal|dieta] [hoy]</i>
 <i>Ejemplo</i>
 <b>/minuta vegetariano hoy</b>
-- <i>clima:</i> te otorga el clima del día en la universidad. (EN DESARROLLO)
+- <i>clima:</i> te otorga el clima en la universidad. (EN DESARROLLO)
+    <i>[/]clima [hoy]</i>
 
+Lo que está en [corchetes] es opcional.
 """
 commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<today>hoy))?",
             r"[/](start|help)",
-            r"[/](clima)(?: (?P<today>hoy))?"
+            r"[/]?(clima)(?: (?P<today>hoy))?"
             ]
 
 commands = init_regex(commands)
