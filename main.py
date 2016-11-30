@@ -28,7 +28,7 @@ def main():
         actual_message_id = last_user["update_id"]
         message = last_user["message"]['text']
         if actual_message_id != last_message_id:
-            if last_user['message']['from']['username']:
+            if 'username' in last_user['message']['from']:
                 print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], message))
             else:
                 print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['first_name'], message))
