@@ -1,6 +1,9 @@
 import re
-import time
+import urllib, json
 import requests
+import time
+from urllib.parse import quote
+
 
 def init_regex(regex_list):
     regex_list = list(map(lambda regex: re.compile(regex), regex_list))
@@ -49,5 +52,57 @@ def minuta(type_lunch, today):
             text += "<b>%s</b>:\n" % minuta_text[i].strip() + minuta_text[i + 5 * (factor + 1) + factor].strip() + "\n\n"
     else:
         text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip() + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip() + "\n"
+
+    return text
+
+def to_celsius(f):
+    return (f - 32) / 1.8
+
+def load_weather_code():
+    weather_code_dict = dict()
+    with open('weather_code') as txt:
+        for line in txt:
+            line = line.strip().split(";")
+            weather_code_dict[line[0]] = line[1]
+    return weather_code_dict
+
+weather_code_dict = load_weather_code()
+
+def get_weather(today):
+    translate_days = {
+        'Mon': "Lunes",
+        'Tue': "Martes",
+        "Wed": "Miércoles",
+        "Thu": "Jueves",
+        "Fri": "Viernes",
+        "Sat": "Sábado",
+        "Sun": "Domingo"
+    }
+
+    baseurl = "https://query.yahooapis.com/v1/public/yql?"
+    yql_query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='universidad tecnica federico santa maria, valparaiso, cl')"
+    yql_url = baseurl + 'q=' + quote(yql_query) + "&format=json"
+    try:
+        result = urllib.request.urlopen(yql_url)
+        data = json.loads(result.read().decode('utf-8'))
+        weather = data['query']['results']['channel']['item']['forecast']
+    except:
+        return "No se pudo obtener el clima 😢"
+
+    # We need to convert all the days to Celsius.
+    for day in range(len(weather)):
+        weather[day]['high'] = to_celsius(int(weather[day]['high']))
+        weather[day]['low'] = to_celsius(int(weather[day]['low']))
+
+    if today:
+        text = "<b>Pronóstico hoy (%s):</b>\n" % weather[0]['date']
+        text += weather_code_dict[weather[0]['code']] + "\n"
+        text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠" % (weather[0]['high'], weather[0]['low'])
+    else:
+        text = "<b>Pronóstico durante los siguientes %d días:</b>\n\n" % len(weather)
+        for day in range(len(weather)):
+            text += "<b>%s, %s:</b>\n" % (translate_days[weather[day]['day']], weather[day]['date'])
+            text += weather_code_dict[weather[day]['code']] + "\n"
+            text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠\n\n" % (weather[day]['high'], weather[day]['low'])
 
     return text

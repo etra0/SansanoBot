@@ -13,7 +13,7 @@ Actualmente, el bot USM-Bot tiene los siguientes comandos:
 """
 commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<today>hoy))?",
             r"[/](start|help)",
-            r"[/](clima)"
+            r"[/](clima)(?: (?P<today>hoy))?"
             ]
 
 commands = init_regex(commands)
@@ -50,11 +50,13 @@ def main():
             if command_name.lower() == "minuta":
                 new_message = minuta(**command_dict)
                 send_message(new_message, last_user_id)
+
+            elif command_name == "clima":
+                send_message(get_weather(**command_dict), last_user_id)
+
             elif command_name in "starthelp":
                 new_message = WELCOME_MESSAGE + ("\nCreado por @EtraStyle" if "/start" in message else "")
                 send_message(new_message, last_user_id)
-            elif command_name == "clima":
-                send_message("Actualmente, se encuentra en desarrollo.", last_user_id)
 
 if __name__ == "__main__":
     try:
