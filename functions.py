@@ -69,6 +69,7 @@ def load_weather_code():
 weather_code_dict = load_weather_code()
 
 def get_weather(today):
+    yahoo_time_format = "%y-%m-%dT%h:%M:%SZ"
     translate_days = {
         'Mon': "Lunes",
         'Tue': "Martes",
@@ -80,7 +81,8 @@ def get_weather(today):
     }
 
     baseurl = "https://query.yahooapis.com/v1/public/yql?"
-    yql_query = "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='universidad tecnica federico santa maria, valparaiso, cl')"
+    woeid_USM = "349526"
+    yql_query = "select * from weather.forecast where woeid={id_usm}".format(id_usm=woeid_USM)
     yql_url = baseurl + 'q=' + quote(yql_query) + "&format=json"
     try:
         result = urllib.request.urlopen(yql_url)
@@ -106,3 +108,6 @@ def get_weather(today):
             text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠\n\n" % (weather[day]['high'], weather[day]['low'])
 
     return text
+
+if __name__ == "__main__":
+    print(get_weather(True))

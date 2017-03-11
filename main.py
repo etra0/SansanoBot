@@ -42,7 +42,7 @@ def main():
             for command in commands:
                 command_match = command.match(message)
                 if command_match:
-                    command_name = command_match.group(1)
+                    command_name = command_match.group(1).lower()
                     command_dict = command_match.groupdict()
                     break
 
@@ -50,7 +50,7 @@ def main():
                 send_message("No entiendo lo que quieres decir.", last_user_id)
                 continue
 
-            if command_name.lower() == "minuta":
+            if command_name == "minuta":
                 new_message = minuta(**command_dict)
                 send_message(new_message, last_user_id)
 
