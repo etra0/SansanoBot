@@ -44,6 +44,12 @@ def minuta(type_lunch, today):
     if not type_lunch:
         type_lunch = "normal"
 
+    # Fixes de espacios cuestionables de los malos programadores
+    # de la USM.
+    regex_spaces = re.compile(r"[ ]+", re.DOTALL)
+    for i in range(len(minuta_text)):
+        minuta_text[i] = re.sub(regex_spaces, " ", minuta_text[i])
+
     text = "<b>Minuta %s\n\n</b>" % type_lunch.title()
 
     weekday = int(time.strftime("%w"))
