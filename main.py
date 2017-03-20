@@ -2,6 +2,7 @@ import re
 from functions import *
 from telegram_api import *
 from secret_token import owner_id
+import sys
 
 WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
@@ -24,8 +25,9 @@ commands = init_regex(commands)
 def main():
     last_message_id = 0
     while True:
-        if get_updates():
-            last_user = get_updates()["result"][-1]
+        updates = get_updates()
+        if updates:
+            last_user = updates["result"][-1]
         else:
             continue
         actual_message_id = last_user["update_id"]
@@ -65,5 +67,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as err:
+        print(err.strerror)
         send_message("Se ha cerrado SansanoBot, motivo:\n%s" % err, owner_id)
         sys.exit()
