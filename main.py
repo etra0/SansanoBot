@@ -25,8 +25,13 @@ commands = init_regex(commands)
 def main():
     last_message_id = 0
     while True:
-        updates = get_updates()
-        if updates:
+        try:
+            updates = get_updates()
+        except Exception as err:
+            print("Probablemente hayan problemas de conexion: %s" % err)
+            continue
+
+        if updates and len(updates) > 1:
             last_user = updates["result"][-1]
         else:
             continue
@@ -67,6 +72,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as err:
-        print(err.strerror)
         send_message("Se ha cerrado SansanoBot, motivo:\n%s" % err, owner_id)
         sys.exit()
