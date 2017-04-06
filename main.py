@@ -14,12 +14,15 @@ Actualmente, el bot USM-Bot tiene los siguientes comandos:
     <i>[/]clima [hoy]</i>
 
 Lo que está en [corchetes] es opcional.
+<a href="https://github.com/etrastyle/SansanoBot">Código en GitHub</a>
 """
 commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<today>hoy))?",
             r"[/](start|help)",
             r"[/]?(clima)(?: (?P<today>hoy))?"
             ]
 
+# Para agregar una nueva funcion, agregar a funciones_dict, esta debe retornar un string.
+# Tambien se debe agregar su expresion regular, y la funcion debe manejar todas las variables.
 functions_dict = {
     "minuta": minuta,
     "clima": get_weather
@@ -30,16 +33,21 @@ commands = init_regex(commands)
 def main():
     last_message_id = 0
     while True:
+        # Usualmente falla porque el laboratorio se queda sin internet en ciertos
+        # momentos del dia.
         try:
             updates = get_updates()
         except Exception as err:
             print("%s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), err))
             continue
 
+        # A veces retornaba una lista de resultados vacia, por ende,
+        # es necesario que al menos obtenga una solicitud
         if updates and len(updates["result"]) > 1:
             last_user = updates["result"][-1]
         else:
             continue
+
         actual_message_id = last_user["update_id"]
         message = last_user["message"]['text']
         if actual_message_id != last_message_id:
@@ -63,7 +71,7 @@ def main():
                 continue
 
             if command_name in functions_dict:
-                new_message = functions_dict[command_name]
+                new_message = functions_dict[command_name](**command_dict)
                 send_message(new_message, last_user_id)
 
             elif command_name in "starthelp":
