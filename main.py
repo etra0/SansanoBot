@@ -20,6 +20,11 @@ commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (
             r"[/]?(clima)(?: (?P<today>hoy))?"
             ]
 
+functions_dict = {
+    "minuta": minuta,
+    "clima": get_weather
+}
+
 commands = init_regex(commands)
 
 def main():
@@ -57,12 +62,9 @@ def main():
                 send_message("No entiendo lo que quieres decir.", last_user_id)
                 continue
 
-            if command_name == "minuta":
-                new_message = minuta(**command_dict)
+            if command_name in functions_dict:
+                new_message = functions_dict[command_name]
                 send_message(new_message, last_user_id)
-
-            elif command_name == "clima":
-                send_message(get_weather(**command_dict), last_user_id)
 
             elif command_name in "starthelp":
                 new_message = WELCOME_MESSAGE + ("\nCreado por @EtraStyle" if "/start" in message else "")
