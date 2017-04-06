@@ -28,10 +28,10 @@ def main():
         try:
             updates = get_updates()
         except Exception as err:
-            print("Probablemente hayan problemas de conexion: %s" % err)
+            print("%s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), err))
             continue
 
-        if updates and len(updates) > 1:
+        if updates and len(updates["result"]) > 1:
             last_user = updates["result"][-1]
         else:
             continue
