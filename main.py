@@ -32,11 +32,21 @@ commands = init_regex(commands)
 
 def main():
     last_message_id = 0
+    offset = -9
+    while offset == -9:
+        updates = get_updates()
+
+        if updates and len(updates["result"]) > 1:
+            offset = updates["result"][-1]["update_id"]
+            break
+        else:
+            continue
+
     while True:
         # Usualmente falla porque el laboratorio se queda sin internet en ciertos
         # momentos del dia.
         try:
-            updates = get_updates()
+            updates = get_updates(offset)
         except Exception as err:
             print("%s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), err))
             continue
@@ -77,6 +87,8 @@ def main():
             elif command_name in "starthelp":
                 new_message = WELCOME_MESSAGE + ("\nCreado por @EtraStyle" if "/start" in message else "")
                 send_message(new_message, last_user_id)
+
+            offset += 1
 
 if __name__ == "__main__":
     try:

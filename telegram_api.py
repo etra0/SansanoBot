@@ -8,8 +8,8 @@ def getMe():
     data = json.loads(response.read().decode('utf-8'))
     return data
 
-def get_updates():
-    url = "https://api.telegram.org/%s/getUpdates" % token
+def get_updates(offset=0):
+    url = "https://api.telegram.org/%s/getUpdates?offset=%s" % (token, str(offset))
     response = urllib.request.urlopen(url)
     data = json.loads(response.read().decode('utf-8'))
     return data
