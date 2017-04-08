@@ -59,7 +59,14 @@ def main():
             continue
 
         actual_message_id = last_user["update_id"]
-        message = last_user["message"]['text']
+
+        # Podian existir mensajes sin textos, por ejemplo:
+        # los stickers.
+        if 'text' in last_user['message']:
+            message = last_user["message"]['text']
+        else:
+            continue
+
         if actual_message_id != last_message_id:
             if 'username' in last_user['message']['from']:
                 print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), last_user['message']['from']['username'], message))
