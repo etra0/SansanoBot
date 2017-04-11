@@ -9,7 +9,7 @@ def init_regex(regex_list):
     regex_list = list(map(lambda regex: re.compile(regex), regex_list))
     return regex_list
 
-def minuta(type_lunch, today):
+def minuta(type_lunch, week):
     type_lunch_number = {
         None: 0,
         "normal": 0,
@@ -53,7 +53,7 @@ def minuta(type_lunch, today):
     text = "<b>Minuta %s\n\n</b>" % type_lunch.title()
 
     weekday = int(time.strftime("%w"))
-    if not today or weekday > 5:
+    if week or weekday > 5:
         for i in range(0, 5):
             text += "<b>%s</b>:\n" % minuta_text[i].strip() + minuta_text[i + 5 * (factor + 1) + factor].strip() + "\n\n"
     else:

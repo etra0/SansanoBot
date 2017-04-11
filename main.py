@@ -16,7 +16,7 @@ Actualmente, el bot USM-Bot tiene los siguientes comandos:
 Lo que está en [corchetes] es opcional.
 <a href="https://github.com/etrastyle/SansanoBot">Código en GitHub</a>
 """
-commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<today>hoy))?",
+commands = [r"[/]?([mM]inuta)(?: (?P<type_lunch>vegetariano|dieta|normal))?(?: (?P<week>semana))?",
             r"[/](start|help)",
             r"[/]?(clima)(?: (?P<today>hoy))?"
             ]
