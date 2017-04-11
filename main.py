@@ -6,8 +6,8 @@ import sys
 
 WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
 Actualmente, el bot USM-Bot tiene los siguientes comandos:
-- <i>minuta:</i> te otorga la minuta del día, ya sea normal, vegetariano ó dieta. Además, puedes solicitar solo la del día.
-    <i>minuta [vegetariano|normal|dieta] [hoy]</i>
+- <i>minuta:</i> te otorga la minuta del día, ya sea normal, vegetariano ó dieta. Además, puedes solicitar la minuta de la semana.
+    <i>minuta [vegetariano|normal|dieta] [semana]</i>
 <i>Ejemplo</i>
 <b>/minuta vegetariano hoy</b>
 - <i>clima:</i> te otorga el clima en la universidad. (EN DESARROLLO)
