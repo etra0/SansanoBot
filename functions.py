@@ -20,7 +20,8 @@ def minuta(type_lunch, week):
 
 
     try:
-        minuta = requests.get('http://www.usm.cl/comunidad/servicio-de-alimentacion/')
+        minuta = requests.get(
+        'http://www.usm.cl/comunidad/servicio-de-alimentacion/')
     except requests.exceptions.ConnectTimeout as err:
         return "No se ha podido conectar con usm.cl"
 
@@ -39,7 +40,8 @@ def minuta(type_lunch, week):
     minuta_text.remove("<p><strong>Almuerzos</strong></p>")
 
     # Se quitan las ultimas etiquetas innecesarias
-    minuta_text = list(map(lambda string: re.sub(r"</?(?:p|strong)>", "", string), minuta_text))
+    minuta_text = list(map(
+        lambda string: re.sub(r"</?(?:p|strong)>", "", string), minuta_text))
 
     if not type_lunch:
         type_lunch = "normal"
@@ -55,9 +57,13 @@ def minuta(type_lunch, week):
     weekday = int(time.strftime("%w"))
     if week or weekday > 5:
         for i in range(0, 5):
-            text += "<b>%s</b>:\n" % minuta_text[i].strip() + minuta_text[i + 5 * (factor + 1) + factor].strip() + "\n\n"
+            text += "<b>%s</b>:\n" % minuta_text[i].strip()
+                + minuta_text[i + 5*(factor + 1) + factor].strip()
+                + "\n\n"
     else:
-        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip() + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip() + "\n"
+        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip()
+                + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip()
+                + "\n"
 
     return text
 
@@ -88,7 +94,8 @@ def get_weather(today):
 
     baseurl = "https://query.yahooapis.com/v1/public/yql?"
     woeid_USM = "349526"
-    yql_query = "select * from weather.forecast where woeid={id_usm}".format(id_usm=woeid_USM)
+    yql_query = "select * from weather.forecast where woeid={id_usm}".format(
+        id_usm=woeid_USM)
     yql_url = baseurl + 'q=' + quote(yql_query) + "&format=json"
     try:
         result = urllib.request.urlopen(yql_url)
@@ -105,13 +112,17 @@ def get_weather(today):
     if today:
         text = "<b>Pronóstico hoy (%s):</b>\n" % weather[0]['date']
         text += weather_code_dict[weather[0]['code']] + "\n"
-        text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠" % (weather[0]['high'], weather[0]['low'])
+        text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠" % (weather[0]['high'],
+            weather[0]['low'])
     else:
-        text = "<b>Pronóstico durante los siguientes %d días:</b>\n\n" % len(weather)
+        text = "<b>Pronóstico durante los siguientes %d días:</b>\n\n"
+            % len(weather)
         for day in range(len(weather)):
-            text += "<b>%s, %s:</b>\n" % (translate_days[weather[day]['day']], weather[day]['date'])
+            text += "<b>%s, %s:</b>\n" % (translate_days[weather[day]['day']],
+                weather[day]['date'])
             text += weather_code_dict[weather[day]['code']] + "\n"
-            text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠\n\n" % (weather[day]['high'], weather[day]['low'])
+            text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠\n\n" % (
+            weather[day]['high'], weather[day]['low'])
 
     return text
 
