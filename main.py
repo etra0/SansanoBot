@@ -2,6 +2,7 @@ import re
 from functions import *
 from telegram_api import *
 from secret_token import owner_id
+from weather import Clima, interface
 import sys
 
 WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
@@ -31,7 +32,7 @@ commands = [r"[/]?([mM]inuta)"
 # manejar todas las variables.
 functions_dict = {
     "minuta": minuta,
-    "clima": get_weather
+    "clima": interface
 }
 
 commands = init_regex(commands)

@@ -80,6 +80,7 @@ def load_weather_code():
 
 weather_code_dict = load_weather_code()
 
+# deprecated 
 def get_weather(today):
     yahoo_time_format = "%y-%m-%dT%h:%M:%SZ"
     translate_days = {
