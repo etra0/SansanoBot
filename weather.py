@@ -77,7 +77,10 @@ class Clima(object):
 
 def interface(today):
     js_text = unescape(open('data.js').read())
-    c = Clima(js_text)
+    try:
+        c = Clima(js_text)
+    except:
+        return "No se ha podido obtener el clima"
     if today:
         return c.generate_string()[0]
 
