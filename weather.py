@@ -50,6 +50,12 @@ class Clima(object):
             # the weather of that 'time' is useless now.
             weather_text = list(
                     zip(JORNADAS[::-1], weather_text[::-1]))[::-1]
+
+            for i, tup in enumerate(weather_text):
+                j, w = tup
+                if not w:
+                    del weather_text[i]
+
             weather_text = list(map(lambda x: "".join(x), weather_text))
             data_to_print = {
                 'day': day.title(),
