@@ -57,12 +57,12 @@ def minuta(type_lunch, week):
     weekday = int(time.strftime("%w"))
     if week or weekday > 5:
         for i in range(0, 5):
-            text += "<b>%s</b>:\n" % minuta_text[i].strip()
-                + minuta_text[i + 5*(factor + 1) + factor].strip()
+            text += "<b>%s</b>:\n" % minuta_text[i].strip() \
+                + minuta_text[i + 5*(factor + 1) + factor].strip() \
                 + "\n\n"
     else:
-        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip()
-                + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip()
+        text += "<b>Hoy %s</b>:\n" % minuta_text[weekday - 1].strip() \
+                + minuta_text[weekday - 1 + 5*(factor + 1) + factor].strip() \
                 + "\n"
 
     return text
@@ -115,7 +115,7 @@ def get_weather(today):
         text += "Máxima: %dºC 🌈\nMínima: %dºC 🌠" % (weather[0]['high'],
             weather[0]['low'])
     else:
-        text = "<b>Pronóstico durante los siguientes %d días:</b>\n\n"
+        text = "<b>Pronóstico durante los siguientes %d días:</b>\n\n" \
             % len(weather)
         for day in range(len(weather)):
             text += "<b>%s, %s:</b>\n" % (translate_days[weather[day]['day']],

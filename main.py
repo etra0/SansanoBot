@@ -18,7 +18,7 @@ Lo que está en [corchetes] es opcional.
 <a href="https://github.com/etrastyle/SansanoBot">Código en GitHub</a>
 """
 
-commands = [r"[/]?([mM]inuta)"  
+commands = [r"[/]?([mM]inuta)"
             + "(?: (?P<type_lunch>vegetariano|dieta|normal))?"
             + "(?: (?P<week>semana))?",
             r"[/](start|help)",
@@ -102,7 +102,7 @@ def main():
                 send_message(new_message, last_user_id)
 
             elif command_name in "starthelp":
-                new_message = WELCOME_MESSAGE
+                new_message = WELCOME_MESSAGE \
                      + ("\nCreado por @EtraStyle" \
                              if "/start" in message else "")
                 send_message(new_message, last_user_id)
