@@ -9,6 +9,29 @@ class Clima(object):
     data_dict = {}
     def __init__(self, text):
         self.data_dict = self.parse_meteochile(text)
+        self.add_emojis()
+
+    def add_emojis(self):
+        emojis_dict = {
+            r"[Nn]ub": "☁️",
+            r"[Cc]ubier": "⛅️",
+            r"[Cc]hubas|[Ll](?:uvia|ovizn)|[Pp]recip": "☔️",
+            r"[Dd]esp|[Ss]ol": "☀️"
+        }
+
+        for i in range(len(self.data_dict['texto'])):
+            for j in range(len(self.data_dict['texto'][i])):
+                # we add the emojis accum just in case the regex can't manage
+                # some weird chars.
+                stack_emojis = ''
+                for regex in emojis_dict:
+                    match = re.findall(regex, self.data_dict['texto'][i][j])
+                    if match:
+                        # add space one time
+                        if ' ' not in stack_emojis:
+                            stack_emojis += ' '
+                        stack_emojis += emojis_dict[regex]
+                self.data_dict['texto'][i][j] += stack_emojis
 
     def parse_meteochile(self, text):
         dict_regex = re.compile(r"([\w_]+?) ?:")
@@ -64,8 +87,8 @@ class Clima(object):
                 'max': max_C
             }
             all_text.append(("{day}:\n" \
-                        + ("Mínima de {min} grados, " if min_C else "") \
-                        + "Máxima de {max} grados.\n" \
+                        + ("Mínima {min} ºC, " if min_C else "") \
+                        + "Máxima {max} ºC.\n" \
                         + "{weather}").format(
                             **data_to_print))
         return all_text
