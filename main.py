@@ -56,7 +56,7 @@ def main():
             updates = get_updates(offset)
         except Exception as err:
             print("%s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), \
-                err))
+                err), flush=True)
             continue
 
         # A veces retornaba una lista de resultados vacia, por ende,
@@ -78,10 +78,10 @@ def main():
         if actual_message_id != last_message_id:
             if 'username' in last_user['message']['from']:
                 print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"),
-                    last_user['message']['from']['username'], message))
+                    last_user['message']['from']['username'], message), flush=True)
             else:
                 print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"),
-                    last_user['message']['from']['first_name'], message))
+                    last_user['message']['from']['first_name'], message), flush=True)
 
             last_message_id = actual_message_id
             last_user_id = last_user['message']['from']['id']
