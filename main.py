@@ -1,23 +1,18 @@
 import re
-from functions import *
-from telegram_api import *
-from secret_token import owner_id
-from weather import Clima, interface
 import sys
+import logging
+from lib.constants import *
+from lib.functions import *
+from lib.telegram_api import *
+from lib.secret_token import owner_id
+from lib.weather import Clima, interface
 
-WELCOME_MESSAGE = """                   <b>¡Bienvenido!</b>
-Actualmente, el bot USM-Bot tiene los siguientes comandos:
-- <i>minuta:</i> te otorga la minuta del día, ya sea normal,\
-vegetariano ó dieta. Además, puedes solicitar la minuta de la semana.
-    <i>minuta [vegetariano|normal|dieta] [semana]</i>
-<i>Ejemplo</i>
-<b>/minuta vegetariano hoy</b>
-- <i>clima:</i> te otorga el clima en la universidad. (EN DESARROLLO)
-    <i>[/]clima [hoy]</i>
+class FilterOne:
+    def __init__(self, level):
+        self.level = level
 
-Lo que está en [corchetes] es opcional.
-<a href="https://github.com/etrastyle/SansanoBot">Código en GitHub</a>
-"""
+    def filter(self, verified):
+        return self.level == verified.levelno
 
 commands = [r"[/]?([mM]inuta)"
             + "(?: (?P<type_lunch>vegetariano|dieta|normal))?"
@@ -38,6 +33,44 @@ functions_dict = {
 commands = init_regex(commands)
 
 def main():
+    # inicializar logging
+    logging.basicConfig(filename='logs/all.log', level=logging.DEBUG)
+
+    logging_formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s",
+            datefmt=TIME_FORMAT)
+
+    # main log
+    logger = logging.getLogger('class_logger')
+    logger.setLevel(logging.DEBUG)
+
+
+    all_log = logging.FileHandler('logs/sansanobot.log')
+    all_log.setLevel(logging.DEBUG)
+    all_log.setFormatter(logging_formatter)
+    logger.addHandler(all_log)
+
+    # historial log
+    historial_formatter = logging.Formatter(
+            "%(asctime)s - %(message)s",
+            datefmt=TIME_FORMAT)
+
+    historial_log = logging.FileHandler('logs/historial.log')
+    historial_log.setLevel(logging.INFO)
+
+    #in this case, we need the info log, so I created a class called FilterOne
+    historial_log.addFilter(FilterOne(logging.INFO))
+    historial_log.setFormatter(historial_formatter)
+    logger.addHandler(historial_log)
+
+    # stream log
+    stream_log = logging.StreamHandler()
+    stream_log.setLevel(logging.INFO)
+    stream_log.addFilter(FilterOne(logging.INFO))
+    stream_log.setFormatter(historial_formatter)
+    logger.addHandler(stream_log)
+
+
     last_message_id = 0
     offset = -9
     while offset == -9:
@@ -55,8 +88,7 @@ def main():
         try:
             updates = get_updates(offset)
         except Exception as err:
-            print("%s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"), \
-                err), flush=True)
+            logger.warning(err)
             continue
 
         # A veces retornaba una lista de resultados vacia, por ende,
@@ -77,11 +109,17 @@ def main():
 
         if actual_message_id != last_message_id:
             if 'username' in last_user['message']['from']:
-                print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"),
-                    last_user['message']['from']['username'], message), flush=True)
+
+                to_print = "%s: %s" % (
+                    last_user['message']['from']['username'], message)
+
+                logger.info(to_print)
             else:
-                print("%s %s: %s" % (time.strftime("%d/%m/%Y - %H:%M:%S"),
-                    last_user['message']['from']['first_name'], message), flush=True)
+
+                to_print = "%s: %s" % (
+                    last_user['message']['from']['first_name'], message)
+
+                logger.info(to_print)
 
             last_message_id = actual_message_id
             last_user_id = last_user['message']['from']['id']
