@@ -5,121 +5,87 @@ from lib.constants import *
 from lib.functions import *
 from lib.telegram_api import *
 from lib.logger import start_logging
-from lib.secret_token import owner_id
+from lib.secret_token import token
 from lib.weather import Clima, interface
-
-class FilterOne:
-    def __init__(self, level):
-        self.level = level
-
-    def filter(self, verified):
-        return self.level == verified.levelno
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
+RegexHandler
+from telegram import ParseMode
 
 commands = [r"[/]?([mM]inuta)"
             + "(?: (?P<type_lunch>vegetariano|dieta|normal))?"
             + "(?: (?P<week>semana))?",
-            r"[/](start|help)",
+            r"[/](?P<command>start|help)",
             r"[/]?(clima)(?: (?P<today>hoy))?"
             ]
 
-# Para agregar una nueva funcion, agregar a funciones_dict, esta debe
-# retornar un string.
-# Tambien se debe agregar su expresion regular, y la funcion debe
-# manejar todas las variables.
-functions_dict = {
-    "minuta": minuta,
-    "clima": interface
-}
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
-commands = init_regex(commands)
+logger = logging.getLogger(__name__)
 
-class SansanoBot:
-    def __init__(self):
-        self.logger = start_logging()
+def enable_logging(func):
+    def func_wrapper(bot, update, **arg):
+        logging.info('%s: %s', update.message.chat.username,
+                update.message.text)
+        if 'groupdict' in arg:
+            func(bot, update, arg['groupdict'])
+        else:
+            func(bot, update)
+    return func_wrapper
+
+@enable_logging
+def minuta_wrapper(bot, update, groupdict):
+    text = minuta(**groupdict)
+    update.message.reply_text(text, parse_mode=ParseMode.HTML)
+
+@enable_logging
+def clima_wrapper(bot, update, groupdict):
+    text = get_weather(**groupdict)
+    update.message.reply_text(text, parse_mode=ParseMode.HTML)
+
+@enable_logging
+def help_wrapper(bot, update, groupdict):
+    text = WELCOME_MESSAGE
+    update.message.reply_text(text, parse_mode=ParseMode.HTML)
+
+@enable_logging
+def no_command(bot, update):
+    update.message.reply_text("No entiendo lo que quieres decir.")
+
+# Define a few command handlers. These usually take the two arguments bot and
+# update. Error handlers also receive the raised TelegramError object in error.
+
+def error(bot, update, error):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, error)
+
 
 def main():
+    """Start the bot."""
+    updater = Updater(token)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    dp.add_handler(RegexHandler(commands[0], minuta_wrapper, pass_groupdict=True))
+    dp.add_handler(RegexHandler(commands[1], help_wrapper, pass_groupdict=True))
+    dp.add_handler(RegexHandler(commands[2], clima_wrapper, pass_groupdict=True))
+
+    dp.add_handler(MessageHandler(Filters.text, no_command))
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
-    last_message_id = 0
-    offset = -9
-    while offset == -9:
-        updates = get_updates()
+if __name__ == '__main__':
+    main()
 
-        if updates and len(updates["result"]) > 1:
-            offset = updates["result"][-1]["update_id"]
-            break
-        else:
-            continue
-
-    while True:
-        # Usualmente falla porque el laboratorio se queda sin internet
-        # en ciertos momentos del dia.
-        try:
-            updates = get_updates(offset)
-        except Exception as err:
-            logger.warning(err)
-            continue
-
-        # A veces retornaba una lista de resultados vacia, por ende,
-        # es necesario que al menos obtenga una solicitud
-        if updates and len(updates["result"]) > 1:
-            last_user = updates["result"][-1]
-        else:
-            continue
-
-        actual_message_id = last_user["update_id"]
-
-        # Podian existir mensajes sin textos, por ejemplo:
-        # los stickers.
-        if 'text' in last_user['message']:
-            message = last_user["message"]['text']
-        else:
-            continue
-
-        if actual_message_id != last_message_id:
-            if 'username' in last_user['message']['from']:
-
-                to_print = "%s: %s" % (
-                    last_user['message']['from']['username'], message)
-
-                logger.info(to_print)
-            else:
-
-                to_print = "%s: %s" % (
-                    last_user['message']['from']['first_name'], message)
-
-                logger.info(to_print)
-
-            last_message_id = actual_message_id
-            last_user_id = last_user['message']['from']['id']
-
-            for command in commands:
-                command_match = command.match(message)
-                if command_match:
-                    command_name = command_match.group(1).lower()
-                    command_dict = command_match.groupdict()
-                    break
-
-            if not command_match:
-                send_message("No entiendo lo que quieres decir.",
-                        last_user_id)
-                continue
-
-            if command_name in functions_dict:
-                new_message = functions_dict[command_name](**command_dict)
-                send_message(new_message, last_user_id)
-
-            elif command_name in "starthelp":
-                new_message = WELCOME_MESSAGE \
-                     + ("\nCreado por @EtraStyle" \
-                             if "/start" in message else "")
-                send_message(new_message, last_user_id)
-
-            offset += 1
-
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as err:
-        send_message("Se ha cerrado SansanoBot, motivo:\n%s" % err, owner_id)
-        sys.exit()
