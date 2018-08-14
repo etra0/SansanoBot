@@ -1,5 +1,6 @@
 __pycache__
 secret_token.py
 data.js
-*log*
+logs/
+screenlog.0
 start
