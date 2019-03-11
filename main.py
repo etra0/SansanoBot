@@ -4,7 +4,6 @@ import logging
 import os
 from lib.constants import *
 from lib.functions import *
-from lib.telegram_api import *
 from lib.logger import start_logging
 from lib.weather import Clima, interface
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
