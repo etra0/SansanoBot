@@ -1,11 +1,10 @@
 import re
 import sys
 import logging
+import os
 from lib.constants import *
 from lib.functions import *
-from lib.telegram_api import *
 from lib.logger import start_logging
-from lib.secret_token import token
 from lib.weather import Clima, interface
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, \
 RegexHandler
@@ -63,6 +62,7 @@ def error(bot, update, error):
 
 def main():
     """Start the bot."""
+    token = os.environ["token"]
     updater = Updater(token)
 
     # Get the dispatcher to register handlers
